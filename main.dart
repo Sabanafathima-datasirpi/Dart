@@ -1,14 +1,15 @@
 import 'package:first_project/my_creation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future<void> main() async {
+  await dotenv.load();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    
     return MaterialApp(
       home: Navigator(
         onGenerateRoute: (settings) {
@@ -21,18 +22,46 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key});
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int selectedIndex = 0;
+  List<Widget> options = <Widget>[
+    Text('Home'),
+    Text('Genres'),
+    Text('Favorites'),
+  ];
+
+  void onItemTap(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyCreation(),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    double height = MediaQuery.of(context).size.height;
-    double width = MediaQuery.of(context).size.width;
+    bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Story World'),
+        titleTextStyle: TextStyle(fontSize: isSmallScreen ? 20 : 40 ),
       ),
       body: Container(
-        height: height,
-        width: width,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: NetworkImage(
@@ -47,20 +76,21 @@ class MyHomePage extends StatelessWidget {
               Text(
                 'WonderTales',
                 style: TextStyle(
-                    fontSize: 60,
-                    fontFamily: 'Precious',
-                    color: Color.fromARGB(255, 240, 240, 240)),
+                  fontSize: isSmallScreen ? 40 : 60, 
+                  fontFamily: 'Precious',
+                  color: Color.fromARGB(255, 240, 240, 240),
+                ),
               ),
               Text(
                 "Discover the magic of stories",
-                style: TextStyle(fontSize: 30, color: Colors.white),
+                style: TextStyle(fontSize: isSmallScreen ? 20 : 40, color: Colors.white), 
               ),
               ElevatedButton(
                 child: Text(
                   'View Genres',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 20,
+                    fontSize: isSmallScreen ? 16 : 25, 
                   ),
                 ),
                 onPressed: () {
@@ -72,9 +102,24 @@ class MyHomePage extends StatelessWidget {
                   );
                 },
               ),
+              Center(
+                child: Text(dotenv.env['API_URL'] ?? 'API_URL not found'),
+              ),
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home',),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.auto_awesome), label: 'Genres'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites')
+        ],
+        currentIndex: selectedIndex,
+        onTap: onItemTap, 
+        selectedLabelStyle: TextStyle(fontSize: isSmallScreen ? 20 : 25,), 
+        unselectedLabelStyle: TextStyle(fontSize: isSmallScreen ? 20 : 25,),
       ),
     );
   }
