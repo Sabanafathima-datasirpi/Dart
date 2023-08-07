@@ -1,6 +1,9 @@
 import 'package:first_project/my_creation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 Future<void> main() async {
   await dotenv.load();
@@ -11,13 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Navigator(
-        onGenerateRoute: (settings) {
-          return MaterialPageRoute(
-            builder: (context) => MyHomePage(),
-          );
-        },
-      ),
+      home: MyHomePage(),
     );
   }
 }
@@ -28,7 +25,6 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
-
 class _MyHomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
   List<Widget> options = <Widget>[
@@ -37,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Text('Favorites'),
   ];
 
-  void onItemTap(int index) {
+  void onItemTap(int index)  {
     setState(() {
       selectedIndex = index;
     });
@@ -59,7 +55,13 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Story World'),
-        titleTextStyle: TextStyle(fontSize: isSmallScreen ? 20 : 40 ),
+        titleTextStyle: TextStyle(fontSize: isSmallScreen ? 20 : 40),
+        actions: [
+          IconButton(
+            onPressed: () => showCommentDialog(),
+            icon: Icon(Icons.comment),
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -76,21 +78,21 @@ class _MyHomePageState extends State<MyHomePage> {
               Text(
                 'WonderTales',
                 style: TextStyle(
-                  fontSize: isSmallScreen ? 40 : 60, 
+                  fontSize: isSmallScreen ? 40 : 60,
                   fontFamily: 'Precious',
                   color: Color.fromARGB(255, 240, 240, 240),
                 ),
               ),
               Text(
                 "Discover the magic of stories",
-                style: TextStyle(fontSize: isSmallScreen ? 20 : 40, color: Colors.white), 
+                style: TextStyle(fontSize: isSmallScreen ? 20 : 40, color: Colors.white),
               ),
               ElevatedButton(
                 child: Text(
                   'View Genres',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: isSmallScreen ? 16 : 25, 
+                    fontSize: isSmallScreen ? 16 : 25,
                   ),
                 ),
                 onPressed: () {
@@ -111,16 +113,89 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home',),
           BottomNavigationBarItem(
-              icon: Icon(Icons.auto_awesome), label: 'Genres'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorites')
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.auto_awesome),
+            label: 'Genres',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.favorite),
+            label: 'Favorites',
+          ),
         ],
         currentIndex: selectedIndex,
-        onTap: onItemTap, 
-        selectedLabelStyle: TextStyle(fontSize: isSmallScreen ? 20 : 25,), 
-        unselectedLabelStyle: TextStyle(fontSize: isSmallScreen ? 20 : 25,),
+        onTap: onItemTap,
+        selectedLabelStyle: TextStyle(
+          fontSize: isSmallScreen ? 20 : 25,
+        ),
+        unselectedLabelStyle: TextStyle(
+          fontSize: isSmallScreen ? 20 : 25,
+        ),
       ),
     );
   }
+
+  void showCommentDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        TextEditingController commentController = TextEditingController();
+
+        return AlertDialog(
+          title: Text('Add a Comment'),
+          content: TextField(
+            controller: commentController,
+            maxLines: null,
+            decoration: InputDecoration(
+              hintText: 'Type your comment here...',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                String commentText = commentController.text;
+                if (commentText.isNotEmpty) {
+                  postComment(commentText);
+                  Navigator.pop(context);
+                }
+              },
+              child: Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> postComment(String comment) async {
+    final apiUrl = 'https://jsonplaceholder.typicode.com/posts'; // Replace with your server's comment API endpoint
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'comment': comment}),
+      );
+
+      if (response.statusCode == 201) {
+        // Comment successfully submitted to the server
+        print('Comment submitted: $comment');
+      } else {
+        // Error occurred during the POST request
+        print('Failed to submit comment. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Error handling for any network or server issues
+      print('Error submitting comment: $e');
+    }
+  }
 }
+
+  
