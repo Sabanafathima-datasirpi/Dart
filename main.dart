@@ -175,7 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> postComment(String comment) async {
-    final apiUrl = 'https://jsonplaceholder.typicode.com/posts'; // Replace with your server's comment API endpoint
+    final apiUrl = 'https://jsonplaceholder.typicode.com/posts'; 
 
     try {
       final response = await http.post(
@@ -185,14 +185,14 @@ class _MyHomePageState extends State<MyHomePage> {
       );
 
       if (response.statusCode == 201) {
-        // Comment successfully submitted to the server
+
         print('Comment submitted: $comment');
       } else {
-        // Error occurred during the POST request
+        
         print('Failed to submit comment. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      // Error handling for any network or server issues
+
       print('Error submitting comment: $e');
     }
   }
