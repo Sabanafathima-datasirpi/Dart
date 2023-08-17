@@ -3,11 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'story_state.dart';
+import 'package:provider/provider.dart';
 
 
-Future<void> main() async {
+void main() async {
   await dotenv.load();
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => StoryState(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -197,5 +204,3 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 }
-
-  
