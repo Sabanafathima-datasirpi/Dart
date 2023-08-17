@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'storylist.dart'; // Import the Story class
+import 'storylist.dart'; 
 
 class FavoritesPage extends StatelessWidget {
   final List<Story> favoriteStories;
@@ -22,7 +22,7 @@ class FavoritesPage extends StatelessWidget {
               backgroundImage: AssetImage(story.imageUrl),
             ),
             title: Text(story.title),
-            // You can add more details or widgets as needed
+            
           );
         },
       ),
