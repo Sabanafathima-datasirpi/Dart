@@ -1,11 +1,12 @@
 import 'package:first_project/my_creation.dart';
+import 'package:first_project/profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'story_state.dart';
 import 'package:provider/provider.dart';
-
+import 'package:scoped_model/scoped_model.dart';
 
 void main() async {
   await dotenv.load();
@@ -20,9 +21,11 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MyHomePage(),
-    );
+    return ScopedModel<Profile>(
+        model: Profile(),
+        child: MaterialApp(
+          home: MyHomePage(),
+        ));
   }
 }
 
@@ -32,6 +35,7 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
+
 class _MyHomePageState extends State<MyHomePage> {
   int selectedIndex = 0;
   List<Widget> options = <Widget>[
@@ -40,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Text('Favorites'),
   ];
 
-  void onItemTap(int index)  {
+  void onItemTap(int index) {
     setState(() {
       selectedIndex = index;
     });
@@ -58,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     bool isSmallScreen = MediaQuery.of(context).size.width <= 600;
+    final TextEditingController nameController = TextEditingController();
 
     return Scaffold(
       appBar: AppBar(
@@ -69,6 +74,84 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.comment),
           ),
         ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            ScopedModelDescendant<Profile>(
+              builder: (context, child, model) {
+                if (model.name.isEmpty) {
+                  return DrawerHeader(
+                    decoration: BoxDecoration(color: Colors.blue),
+                    child: Column(
+                      children: [
+                        Text('Profile'),
+                        TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(
+                            hintText: 'Enter name',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            final enteredName = nameController.text;
+                            model.updateName(enteredName);
+                            
+                          },
+                          child: Text('Create profile'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else if (model.editing) {
+                  return DrawerHeader(
+                    decoration: BoxDecoration(color: Colors.blue),
+                    child: Column(
+                      children: [
+                        TextField(
+                          controller: nameController,
+                          decoration: InputDecoration(
+                            hintText: 'Edit name',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            final enteredName = nameController.text;
+                            model.updateName(enteredName);
+                            
+                          },
+                          child: Text('Create profile'),
+                        ),
+                      ],
+                    ),
+                  );
+                } else {
+                  return DrawerHeader(
+                    decoration: BoxDecoration(color: Colors.blue),
+                    child: Column(
+                      children: [
+                        Text('Hello ${model.name}'),
+                        ElevatedButton(
+                            onPressed: () {
+                              model.startEditing();
+                            },
+                            child: Text('Edit profile'))
+                      ],
+                    ),
+                  );
+                }
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+            ),
+            ListTile(
+              leading: Icon(Icons.supervisor_account),
+              title: Text('About'),
+            ),
+          ],
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -92,7 +175,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               Text(
                 "Discover the magic of stories",
-                style: TextStyle(fontSize: isSmallScreen ? 20 : 40, color: Colors.white),
+                style: TextStyle(
+                    fontSize: isSmallScreen ? 20 : 40, color: Colors.white),
               ),
               ElevatedButton(
                 child: Text(
@@ -182,7 +266,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> postComment(String comment) async {
-    final apiUrl = 'https://jsonplaceholder.typicode.com/posts'; 
+    final apiUrl = 'https://jsonplaceholder.typicode.com/posts';
 
     try {
       final response = await http.post(
@@ -192,14 +276,11 @@ class _MyHomePageState extends State<MyHomePage> {
       );
 
       if (response.statusCode == 201) {
-
         print('Comment submitted: $comment');
       } else {
-        
         print('Failed to submit comment. Status code: ${response.statusCode}');
       }
     } catch (e) {
-
       print('Error submitting comment: $e');
     }
   }
