@@ -1,177 +1,285 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+ 
+
 void main() {
+
   runApp(MyApp());
+
 }
 
-class Task {
-  final int id;
-
-  final String text;
-
-  Task(this.id, this.text);
-}
+ 
 
 class MyApp extends StatelessWidget {
+
   @override
+
   Widget build(BuildContext context) {
+
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('To-Do List with Reordering'),
-        ),
-        body: TaskList(),
-      ),
+
+      title: 'Flutter StreamBuilder Example',
+
+      home: FruitsListScreen(),
+
     );
+
   }
+
 }
 
-class TaskList extends StatefulWidget {
+ 
+
+class FruitsListScreen extends StatefulWidget {
+
   @override
-  _TaskListState createState() => _TaskListState();
+
+  _FruitsListScreenState createState() => _FruitsListScreenState();
+
 }
 
-class _TaskListState extends State<TaskList> {
-  final List<Task> tasks = [];
+ 
 
-  final TextEditingController taskController = TextEditingController();
+class _FruitsListScreenState extends State<FruitsListScreen> {
 
-  int taskIdCounter = 1;
+  final StreamController<List<String>> _fruitsStreamController =
 
-  void _addTask(String taskText) {
-    final newTask = Task(taskIdCounter, taskText);
+      StreamController<List<String>>();
 
-    taskIdCounter++;
+  final List<String> _tasks = ["Apple", "Banana", "Cherry", "Date", "Fig"];
 
-    setState(() {
-      tasks.add(newTask);
-
-      taskController.clear();
-    });
-  }
-
-  void removeTask(int id) {
-    setState(() {
-      tasks.removeWhere((task) => task.id == id);
-    });
-  }
-
-  void reorderTasks(int oldIndex, int newIndex) {
-    if (newIndex > oldIndex) {
-      newIndex -= 1;
-    }
-
-    final task = tasks.removeAt(oldIndex);
-
-    tasks.insert(newIndex, task);
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Task order changed'),
-      ),
-    );
-  }
+ 
 
   @override
+
+  void initState() {
+
+    super.initState();
+
+    _updateTasks(); // Initial update
+
+  }
+
+ 
+
+  void _updateTasks() {
+
+    _fruitsStreamController.sink.add(_tasks.toList());
+
+  }
+
+ 
+
+  void _addTask(String task) {
+
+    setState(() {
+
+      _tasks.add(task);
+
+      _updateTasks();
+
+    });
+
+  }
+
+ 
+
+  void _removeTask(String fruit) {
+
+    setState(() {
+
+      _tasks.remove(fruit);
+
+      _updateTasks();
+
+    });
+
+  }
+
+ 
+
+  @override
+
   void dispose() {
-    taskController.dispose();
+
+    _fruitsStreamController.close();
 
     super.dispose();
+
   }
+
+ 
 
   @override
+
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () => onBackButtonPressed(context),
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: taskController,
-                      decoration: InputDecoration(labelText: 'Enter a task'),
-                      onSubmitted: (taskText) {
-                        if (taskText.trim().isNotEmpty) {
-                          _addTask(taskText);
-                        }
-                      },
-                    ),
+
+    return Scaffold(
+
+      appBar: AppBar(
+
+        title: Text('Tasks List'),
+
+      ),
+
+      body: Center(
+
+        child: StreamBuilder<List<String>>(
+
+          stream: _fruitsStreamController.stream,
+
+          initialData: [], // Provide an empty list as initial data
+
+          builder: (context, snapshot) {
+
+            if (snapshot.hasError) {
+
+              return Text('Error: ${snapshot.error}');
+
+            }
+
+ 
+
+            // Check the connection state
+
+            if (snapshot.connectionState == ConnectionState.waiting) {
+
+              return CircularProgressIndicator();
+
+            }
+
+ 
+
+            final tasks = snapshot.data!;
+
+ 
+
+            if (tasks.isEmpty) {
+
+              return Text('No fruits available.');
+
+            }
+
+ 
+
+            return ListView.builder(
+
+              itemCount: tasks.length,
+
+              itemBuilder: (context, index) {
+
+                final task = tasks[index];
+
+                return ListTile(
+
+                  title: Text(task),
+
+                  trailing: IconButton(
+
+                    icon: Icon(Icons.delete),
+
+                    onPressed: () => _removeTask(task),
+
                   ),
-                ],
-              ),
+
+                );
+
+              },
+
+            );
+
+          },
+
+        ),
+
+      ),
+
+      floatingActionButton: FloatingActionButton(
+
+        onPressed: () {
+
+          showDialog(
+
+            context: context,
+
+            builder: (BuildContext context) {
+
+              TextEditingController textController = TextEditingController();
+
+              return AlertDialog(
+
+                title: Text('Add Task'),
+
+                content: TextField(
+
+                  controller: textController,
+
+                  decoration: InputDecoration(
+
+              hintText: 'Task title..',
+
             ),
-            Expanded(
-              child: ReorderableListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  final task = tasks[index];
 
-                  final key = Key(task.id.toString());
+                  onChanged: (text) {
 
-                  return Dismissible(
-                    key: key,
-                    onDismissed: (direction) {
-                      removeTask(task.id);
+                    // You can enable or disable the "Add" button here
 
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Task "${task.text}" removed'),
-                          action: SnackBarAction(
-                            label: 'Undo',
-                            onPressed: () {
-                              setState(() {
-                                tasks.insert(index, task);
-                              });
-                            },
-                          ),
-                        ),
-                      );
+                  },
+
+                  onSubmitted: (text) {
+
+                    if (text.isNotEmpty) {
+
+                      _addTask(text);
+
+                      Navigator.of(context).pop();
+
+                    }
+
+                  },
+
+                ),
+
+                actions: <Widget>[
+
+                  TextButton(
+
+                    child: Text('Add'),
+
+                    onPressed: () {
+
+                      final text = textController.text; // Get the text from the TextField
+
+                      if (text.isNotEmpty) {
+
+                        _addTask(text);
+
+                        Navigator.of(context).pop();
+
+                      }
+
                     },
-                    child: ListTile(
-                      key: key,
-                      title: Text(task.text),
-                    ),
-                  );
-                },
-                onReorder: (oldIndex, newIndex) {
-                  setState(() {
-                    reorderTasks(oldIndex, newIndex);
-                  });
-                },
-              ),
-            ),
-          ],
-        ));
-  }
 
-  Future<bool> onBackButtonPressed(BuildContext context) async {
-    bool? exitApp = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Exit App?'),
-          content: Text('Are you sure?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: Text('No'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: Text('Yes'),
-            ),
-          ],
-        );
-      },
+                  ),
+
+                ],
+
+              );
+
+            },
+
+          );
+
+        },
+
+        child: Icon(Icons.add),
+
+      ),
+
     );
 
-    return exitApp ?? false;
   }
+
 }
