@@ -6,6 +6,7 @@ void main() {
 
 class Task {
   final int id;
+
   final String text;
 
   Task(this.id, this.text);
@@ -32,15 +33,19 @@ class TaskList extends StatefulWidget {
 
 class _TaskListState extends State<TaskList> {
   final List<Task> tasks = [];
+
   final TextEditingController taskController = TextEditingController();
+
   int taskIdCounter = 1;
 
   void _addTask(String taskText) {
     final newTask = Task(taskIdCounter, taskText);
+
     taskIdCounter++;
 
     setState(() {
       tasks.add(newTask);
+
       taskController.clear();
     });
   }
@@ -55,7 +60,9 @@ class _TaskListState extends State<TaskList> {
     if (newIndex > oldIndex) {
       newIndex -= 1;
     }
+
     final task = tasks.removeAt(oldIndex);
+
     tasks.insert(newIndex, task);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -68,6 +75,7 @@ class _TaskListState extends State<TaskList> {
   @override
   void dispose() {
     taskController.dispose();
+
     super.dispose();
   }
 
@@ -100,12 +108,14 @@ class _TaskListState extends State<TaskList> {
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
                   final task = tasks[index];
+
                   final key = Key(task.id.toString());
 
                   return Dismissible(
                     key: key,
                     onDismissed: (direction) {
                       removeTask(task.id);
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Task "${task.text}" removed'),
@@ -149,13 +159,13 @@ class _TaskListState extends State<TaskList> {
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: Text('No'), 
+              child: Text('No'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
-              child: Text('Yes'), 
+              child: Text('Yes'),
             ),
           ],
         );
