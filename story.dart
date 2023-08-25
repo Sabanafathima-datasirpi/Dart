@@ -40,7 +40,7 @@ class _StoriesState extends State<Stories> {
     double width = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Life of Pi'),
+        title: Text('THE WOLF AND THE LAMB'),
         actions: [
           IconButton(
             onPressed: () {
