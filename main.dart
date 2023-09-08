@@ -1,129 +1,79 @@
 import 'package:flutter/material.dart';
-import 'dart:math';
 
 void main() {
-  runApp(const MyApp());
+  runApp(WhatsAppCloneApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
+class WhatsAppCloneApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Header section',
-      home: HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  final List _peopleData = List.generate(1000, (index) {
-    return {"name": "Person \#$index", "age": Random().nextInt(90) + 10};
-  });
-
-  Widget _listItem(index) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: ListTile(
-        leading: Text(index.toString(), style: const TextStyle(fontSize: 18)),
-        title: Text(
-          _peopleData[index]['name'].toString(),
-          style: const TextStyle(fontSize: 18),
-        ),
-        trailing: Text(
-          _peopleData[index]['age'].toString(),
-          style: const TextStyle(fontSize: 18, color: Colors.purple),
-        ),
+    return MaterialApp(
+      title: 'Layout Builder',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(width: 1, color: Colors.black26))),
+      home: ChatScreen(),
     );
   }
+}
 
+class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Header section'),
+        title: Text('Layout Builder'),
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            color: Colors.amber,
-            child: const ListTile(
-              leading: Text('ID'),
-              title: Text('Name'),
-              trailing: Text('Age'),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            color: Colors.blue, 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth > 600) {
+            // Large screen layout (e.g., laptop)
+            return Row(
               children: [
-                Text(
-                  'Info Section',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, 
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    color: Colors.green, 
+                    child: ChatContactList(),
                   ),
                 ),
-                Text(
-                  'This is the list of people data.',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white, 
+                Expanded(
+                  flex: 4,
+                  child: Container(
+                    color: Colors.yellow, 
+                    child: ChatWindow(),
                   ),
                 ),
               ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(10),
-            color: Colors.green, 
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Description Section',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white, 
-                  ),
-                ),
-                Text(
-                  'The data contains Id, name and age of the people.',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _peopleData.length,
-              itemBuilder: (_, index) {
-                return _listItem(index);
-              },
-            ),
-          ),
-        ],
+            );
+          } else {
+            // Small screen layout (e.g., mobile phone)
+            return ChatContactList();
+          }
+        },
       ),
+    );
+  }
+}
+
+
+class ChatContactList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    
+    return Center(
+      child: Text('First page'),
+    );
+  }
+}
+
+class ChatWindow extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+   
+    return Center(
+      child: Text('Expanded page'),
     );
   }
 }
