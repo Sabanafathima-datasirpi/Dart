@@ -1,26 +1,39 @@
 package com.example.demo_springboot.service;
 
+import com.example.demo_springboot.dto.EmpDTO;
 import com.example.demo_springboot.entity.EmpDetail;
 import com.example.demo_springboot.repo.EmpRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 public class EmpService {
     @Autowired
     public EmpRepo empRepo;
-    public List<EmpDetail> getDetails(){
-        List <EmpDetail> empList = new ArrayList<>();
-        empRepo.findAll().forEach(emp_detail -> empList.add(emp_detail));
-        return empList;
+    public Page<EmpDetail> getDetails(Integer pageNo, Integer pageSize) {
+        Page<EmpDetail> pages = empRepo.findAll(PageRequest.of(pageNo, pageSize));
+        return pages;
     }
-    public EmpDetail newEmpDetail(EmpDetail empDetail){
-        return  empRepo.save(empDetail);
+
+    public EmpDetail newEmpDetail(EmpDTO empDTO) {
+        EmpDetail empDetail = mapEmpDTOToEmpDetail(empDTO);
+        return empRepo.save(empDetail);
     }
+
+    // Other service methods...
+
+    private EmpDetail mapEmpDTOToEmpDetail(EmpDTO empDTO) {
+        EmpDetail empDetail = new EmpDetail();
+        empDetail.setName(empDTO.getName());
+        empDetail.setAge(empDTO.getAge());
+        empDetail.setPhone(empDTO.getPhone());
+        return empDetail;
+    }
+
 
     public Optional<Optional<EmpDetail>> getEmpDetailById(Integer empId) {
         return Optional.of(empRepo.findById(empId));
@@ -38,6 +51,8 @@ public class EmpService {
     public EmpDetail getEmpDetailByName(String empName) {
         return empRepo.findByName(empName);
     }
+
+
 
 //    public Optional<EmpDetail> getEmpDetailByName(String empName) {
 //        return Optional.of(empRepo.findByName(empName));
