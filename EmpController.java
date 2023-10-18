@@ -32,33 +32,57 @@ public class EmpController {
     }
 
     @GetMapping("/generate")
-    public ResponseEntity<byte[]> generateAndDownloadPdf() throws DocumentException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    public ResponseEntity<byte[]> generateAndDownloadPdf(@RequestHeader("Authorization") String authorizationHeader,
+                                                         @RequestParam(name = "param1", required = false) String param1,
+                                                         @RequestParam(name = "param2", required = false) String param2) throws DocumentException {
 
-        Document document = new Document();
-        PdfWriter.getInstance(document, byteArrayOutputStream);
-        document.open();
-
-        for (EmpDetail empDetail : empService.getDetails(1,3)) {
-            document.add(new Paragraph("Employee details"));
-            document.add(new Paragraph("Name: " + empDetail.getName()));
-            document.add(new Paragraph("Age: " + empDetail.getAge()));
-            document.add(new Paragraph("Phone: " + empDetail.getPhone()));
-            document.add(new Paragraph("--------------------------------"));
-
+        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("Missing or empty 'Authorization' header.".getBytes());
         }
 
+        System.out.println("Authorization Header: " + authorizationHeader);
 
-        document.close();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("filename", "generated.pdf");
+        System.out.println("Request Param 1: " + param1);
+        System.out.println("Request Param 2: " + param2);
 
-        return ResponseEntity
-                .ok()
-                .headers(headers)
-                .body(byteArrayOutputStream.toByteArray());
+        try {
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+            Document document = new Document();
+            PdfWriter.getInstance(document, byteArrayOutputStream);
+            document.open();
+
+            for (EmpDetail empDetail : empService.getDetails(1, 3)) {
+                document.add(new Paragraph("Employee details"));
+                document.add(new Paragraph("Name: " + empDetail.getName()));
+                document.add(new Paragraph("Age: " + empDetail.getAge()));
+                document.add(new Paragraph("Phone: " + empDetail.getPhone()));
+                document.add(new Paragraph("--------------------------------"));
+            }
+
+            document.close();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("filename", "generated.pdf");
+            headers.add("Custom-Header", "Custom Value");
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .body(byteArrayOutputStream.toByteArray());
+
+        } catch (ArithmeticException e) {
+            e.printStackTrace();
+
+
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("PDF generation failed.".getBytes());
+        }
     }
 
 //    @GetMapping
@@ -69,6 +93,11 @@ public class EmpController {
 //        return ResponseEntity.ok(pagedResult);
 //    }
 
+    /**
+     *
+     * @param empDTO
+     * @return
+     */
     @PostMapping
     public ResponseEntity<Object> newEmpDetail(@Valid @RequestBody EmpDTO empDTO) {
         EmpDetail savedEmpDetail = empService.newEmpDetail(empDTO);
