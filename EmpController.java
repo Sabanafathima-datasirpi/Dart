@@ -32,22 +32,20 @@ public class EmpController {
     }
 
     @GetMapping("/generate")
-    public ResponseEntity<byte[]> generateAndDownloadPdf(@RequestHeader("Authorization") String authorizationHeader,
-                                                         @RequestParam(name = "param1", required = false) String param1,
-                                                         @RequestParam(name = "param2", required = false) String param2) throws DocumentException {
-
-        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Missing or empty 'Authorization' header.".getBytes());
-        }
-
-        System.out.println("Authorization Header: " + authorizationHeader);
-
-
-        System.out.println("Request Param 1: " + param1);
-        System.out.println("Request Param 2: " + param2);
-
+    public ResponseEntity<byte[]> generateAndDownloadPdf() throws DocumentException {
+//
+////        if (authorizationHeader == null || authorizationHeader.isEmpty()) {
+////            return ResponseEntity
+////                    .badRequest()
+////                    .body("Missing or empty 'Authorization' header.".getBytes());
+////        }
+////
+////        System.out.println("Authorization Header: " + authorizationHeader);
+////
+////
+////        System.out.println("Request Param 1: " + param1);
+////        System.out.println("Request Param 2: " + param2);
+//
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -61,15 +59,17 @@ public class EmpController {
                 document.add(new Paragraph("Age: " + empDetail.getAge()));
                 document.add(new Paragraph("Phone: " + empDetail.getPhone()));
                 document.add(new Paragraph("--------------------------------"));
+                int result=1/0;
             }
 
             document.close();
 
             HttpHeaders headers = new HttpHeaders();
+
+
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("filename", "generated.pdf");
             headers.add("Custom-Header", "Custom Value");
-
             return ResponseEntity
                     .ok()
                     .headers(headers)
@@ -93,11 +93,7 @@ public class EmpController {
 //        return ResponseEntity.ok(pagedResult);
 //    }
 
-    /**
-     *
-     * @param empDTO
-     * @return
-     */
+
     @PostMapping
     public ResponseEntity<Object> newEmpDetail(@Valid @RequestBody EmpDTO empDTO) {
         EmpDetail savedEmpDetail = empService.newEmpDetail(empDTO);
@@ -133,4 +129,23 @@ public class EmpController {
         String result = empService.deleteById(empId);
         return ResponseEntity.ok(result);
     }
+
+//    @GetMapping("/generate")
+//    public ResponseEntity<String> exampleEndpoint(
+//            @RequestParam("pageNumber") String requestParam,
+//            @RequestHeader("customHeader") String customHeader) {
+//
+//        HttpHeaders responseHeaders = new HttpHeaders();
+//        responseHeaders.add("X-Custom-Header", "HeaderParam");
+//        String response = "pageNumber: " + requestParam + "\n" +
+//                "Custom Header: " + customHeader;
+//
+//        return ResponseEntity.ok()
+//                .headers(responseHeaders)
+//                .body(response);
+//    }
+
+
 }
+
+
