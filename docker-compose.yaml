@@ -1,0 +1,18 @@
+version: '3'
+services:
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8082:80"
+    environment:
+      WORDPRESS_DB_HOST: mysql_db
+      WORDPRESS_DB_PASSWORD: Shabu@
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_PASSWORD: examplepassword
+    ports:
+      - "5432:5432"      
+      
+ 
+
