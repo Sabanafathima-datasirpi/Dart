@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"com.example.demo","c":"MyClass","l":"MyClass()","u":"%3Cinit%3E()"},{"p":"com.example.demo","c":"MyClass","l":"myMethod(int, int)","u":"myMethod(int,int)"}];updateSearchResults();
