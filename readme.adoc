@@ -1,0 +1,56 @@
+# Project Name
+
+Brief project description goes here.
+
+## Table of Contents
+- [Introduction](#introduction)
+- [Technologies Used](#technologies-used)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Introduction
+
+Provide a brief introduction to your Spring Boot project. Explain its purpose and what it does.
+
+## Technologies Used
+
+List the technologies and frameworks you used in your project. For example:
+- Spring Boot
+- Spring Data JPA
+- Thymeleaf
+- MySQL
+- etc.
+
+## Getting Started
+
+Provide instructions on how to set up and run your project locally. Include details about any prerequisites, configuration, and steps to run the application. You may want to reference your `application.properties` and `build.gradle` files.
+
+### Prerequisites
+
+List any prerequisites, such as Java version, IDE, or database setup.
+
+### Configuration
+
+Explain any important configuration settings in your `application.properties` file.
+
+### Building
+
+If necessary, provide instructions for building the project using your `build.gradle` file.
+
+## Usage
+
+Explain how to use your application. Provide examples or screenshots if applicable.
+
+## Contributing
+
+Explain how others can contribute to your project if you want to encourage collaboration.
+
+## License
+
+Specify the project's license. For example, "This project is licensed under the MIT License."
+
+## Acknowledgments
+
+You can acknowledge anyone or any resources that helped you in the project.
